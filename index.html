@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MR DRACULA — Ban Checker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Cinzel:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cinzel', 'Playfair Display', serif;
+      background: #000000;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ─── BACKGROUND LAYER ─── */
+    .bg-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        /* Hooded figure silhouette */
+        radial-gradient(ellipse at 50% 8%, rgba(50,0,0,0.3) 0%, transparent 40%),
+        /* Skull center */
+        radial-gradient(ellipse at 50% 85%, rgba(30,0,0,0.4) 0%, transparent 30%),
+        /* Occult circles */
+        radial-gradient(circle at 10% 20%, rgba(100,0,0,0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 20%, rgba(100,0,0,0.05) 0%, transparent 20%),
+        /* Fog */
+        radial-gradient(ellipse at 30% 90%, rgba(20,0,0,0.3) 0%, transparent 40%),
+        radial-gradient(ellipse at 70% 90%, rgba(20,0,0,0.3) 0%, transparent 40%),
+        #000000;
+    }
+
+    .bg-layer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        /* Chains — diagonal lines */
+        repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(60,0,0,0.03) 40px, rgba(60,0,0,0.03) 42px),
+        repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(60,0,0,0.03) 40px, rgba(60,0,0,0.03) 42px);
+      pointer-events: none;
+    }
+
+    /* Glowing red eyes (hooded figure) */
+    .bg-layer::after {
+      content: '👁️👁️';
+      position: absolute;
+      top: 6%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 60px;
+      opacity: 0.08;
+      filter: blur(2px);
+      letter-spacing: 40px;
+    }
+
+    /* ─── GLITCH SCAN ─── */
+    .glitch-scan {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 3px,
+        rgba(100,0,0,0.02) 3px,
+        rgba(100,0,0,0.02) 4px
+      );
+      animation: glitchScan 10s linear infinite;
+    }
+
+    @keyframes glitchScan {
+      0% { transform: translateY(0); opacity: 0.2; }
+      50% { opacity: 0.5; }
+      100% { transform: translateY(100%); opacity: 0.2; }
+    }
+
+    /* ─── CONTAINER ─── */
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 480px;
+      width: 100%;
+      background: rgba(8,8,8,0.95);
+      border: 2px solid rgba(139,0,0,0.6);
+      border-radius: 30px;
+      padding: 24px 20px 28px;
+      box-shadow: 0 0 60px rgba(139,0,0,0.15), inset 0 0 60px rgba(139,0,0,0.03);
+      backdrop-filter: blur(4px);
+    }
+
+    /* ─── LOGO ─── */
+    .logo {
+      text-align: center;
+      margin-bottom: 4px;
+      position: relative;
+    }
+
+    .logo .main {
+      font-family: 'Uncial Antiqua', 'Cinzel', serif;
+      font-size: 38px;
+      font-weight: 900;
+      background: linear-gradient(180deg, #8B0000, #D10000, #5B0000);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(139,0,0,0.2);
+      letter-spacing: 2px;
+      line-height: 1.1;
+      position: relative;
+      display: inline-block;
+    }
+
+    .logo .main::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #8B0000, #D10000, #8B0000, transparent);
+      opacity: 0.4;
+    }
+
+    .logo .arabic {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: #5B0000;
+      letter-spacing: 2px;
+      margin-top: 2px;
+      display: block;
+    }
+
+    .logo .powered {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      color: #3a0a0a;
+      letter-spacing: 6px;
+      margin-top: 2px;
+    }
+
+    .logo .evil-tech {
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      color: #5B0000;
+      letter-spacing: 8px;
+      margin-top: 2px;
+      font-weight: 700;
+    }
+
+    /* ─── TOP ROW ─── */
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0 4px;
+      border-bottom: 1px solid rgba(139,0,0,0.15);
+      margin-bottom: 12px;
+    }
+
+    .top-row .arabic-small {
+      font-size: 16px;
+      color: #5B0000;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .top-row .evil-tech-small {
+      font-size: 13px;
+      color: #5B0000;
+      letter-spacing: 6px;
+      font-weight: 700;
+    }
+
+    /* ─── SPONSORED TEXT ─── */
+    .sponsored {
+      text-align: center;
+      font-size: 14px;
+      color: #6a3a3a;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .sponsored span {
+      color: #8B0000;
+    }
+
+    /* ─── PHONE INPUT ─── */
+    .phone-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .phone-group .country {
+      width: 100px;
+      padding: 14px 10px;
+      border-radius: 10px;
+      border: 2px solid rgba(139,0,0,0.5);
+      background: #0a0000;
+      color: #D10000;
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      flex-shrink: 0;
+    }
+
+    .phone-group .country:focus {
+      border-color: #D10000;
+      box-shadow: 0 0 30px rgba(139,0,0,0.1);
+    }
+
+    .phone-group .number-input {
+      flex: 1;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 2px solid rgba(139,0,0,0.5);
+      background: #0a0000;
+      color: #D10000;
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      outline: none;
+      letter-spacing: 1px;
+    }
+
+    .phone-group .number-input:focus {
+      border-color: #D10000;
+      box-shadow: 0 0 30px rgba(139,0,0,0.1);
+    }
+
+    .phone-group .number-input::placeholder {
+      color: #331111;
+    }
+
+    /* ─── CONNECT BUTTON ─── */
+    .btn-connect {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid rgba(139,0,0,0.4);
+      border-radius: 12px;
+      background: #0a0000;
+      color: #8B0000;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 4px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .btn-connect:hover {
+      border-color: #D10000;
+      color: #D10000;
+      box-shadow: 0 0 40px rgba(139,0,0,0.1);
+    }
+
+    .btn-connect:active {
+      transform: scale(0.98);
+    }
+
+    .btn-connect:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ─── STATUS ANIMATION ─── */
+    .status-anim {
+      display: none;
+      text-align: center;
+      padding: 12px 0;
+      margin-bottom: 12px;
+      border: 1px solid rgba(139,0,0,0.15);
+      border-radius: 10px;
+      background: #0a0000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-anim.active {
+      display: block;
+    }
+
+    .status-anim .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #D10000, transparent);
+      animation: scanLine 1.5s ease-in-out infinite;
+      opacity: 0.4;
+    }
+
+    @keyframes scanLine {
+      0% { top: 0; opacity: 0; }
+      50% { top: 100%; opacity: 1; }
+      100% { top: 0; opacity: 0; }
+    }
+
+    .status-anim .dots {
+      font-size: 14px;
+      color: #5B0000;
+      letter-spacing: 6px;
+      animation: dotsPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes dotsPulse {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+
+    .status-anim .connecting-text {
+      font-size: 10px;
+      color: #3a0a0a;
+      letter-spacing: 4px;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    /* ─── RESULT CARD ─── */
+    .result {
+      display: none;
+      margin-top: 16px;
+      padding: 20px 16px;
+      border-radius: 30px;
+      border: 2px solid rgba(139,0,0,0.3);
+      background: #0a0000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result.active {
+      display: block;
+      border-color: rgba(0,200,50,0.3);
+    }
+
+    .result.banned {
+      display: block;
+      border-color: rgba(209,0,0,0.4);
+      box-shadow: 0 0 60px rgba(139,0,0,0.05);
+    }
+
+    .result .result-header {
+      text-align: center;
+      font-size: 16px;
+      color: #5B0000;
+      letter-spacing: 4px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .result .result-status {
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    .result .result-status .this-account {
+      font-size: 22px;
+      color: #8a8a8a;
+      letter-spacing: 2px;
+    }
+
+    .result .result-status .status-big {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      margin-top: 2px;
+      line-height: 1.1;
+    }
+
+    .result .result-status .status-big.banned-text {
+      color: #D10000;
+      text-shadow: 0 0 40px rgba(139,0,0,0.2);
+    }
+
+    .result .result-status .status-big.active-text {
+      color: #00cc44;
+      text-shadow: 0 0 40px rgba(0,200,50,0.2);
+    }
+
+    .result .arabic-center {
+      text-align: center;
+      font-size: 16px;
+      color: #5a3a3a;
+      letter-spacing: 2px;
+      margin: 4px 0 12px;
+    }
+
+    .result .arabic-center .lantern {
+      color: #3a0a0a;
+      margin: 0 12px;
+    }
+
+    /* ─── INFO GRID ─── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(139,0,0,0.1);
+      font-size: 11px;
+    }
+
+    .info-grid .label {
+      color: #5a3a3a;
+      letter-spacing: 1px;
+      font-weight: 400;
+    }
+
+    .info-grid .value {
+      color: #8a8a8a;
+      text-align: right;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .info-grid .value.red {
+      color: #D10000;
+    }
+
+    .info-grid .value.green {
+      color: #00cc44;
+    }
+
+    .info-grid .value.white {
+      color: #f5f5f5;
+    }
+
+    /* ─── DESTROYED FOOTER ─── */
+    .destroyed-footer {
+      text-align: center;
+      font-size: 20px;
+      color: #5B0000;
+      letter-spacing: 2px;
+      margin: 16px 0 12px;
+      font-weight: 700;
+    }
+
+    .destroyed-footer .highlight {
+      color: #D10000;
+      animation: pulseRed 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulseRed {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* ─── BUTTONS ─── */
+    .result-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .result-buttons button {
+      flex: 1;
+      max-width: 180px;
+      padding: 14px 20px;
+      border: 2px solid rgba(139,0,0,0.4);
+      border-radius: 12px;
+      background: #0a0000;
+      color: #8B0000;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-transform: uppercase;
+    }
+
+    .result-buttons button:hover {
+      border-color: #D10000;
+      color: #D10000;
+      box-shadow: 0 0 30px rgba(139,0,0,0.05);
+    }
+
+    .result-buttons button.destroyed-btn {
+      color: #3a0a0a;
+    }
+
+    .result-buttons button.destroyed-btn:hover {
+      border-color: #5B0000;
+      color: #5B0000;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      text-align: center;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(139,0,0,0.08);
+    }
+
+    .footer .hypnosis {
+      font-size: 12px;
+      color: #2a0a0a;
+      letter-spacing: 12px;
+      font-weight: 400;
+      animation: hypnosisFade 4s ease-in-out infinite;
+    }
+
+    @keyframes hypnosisFade {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.5; }
+    }
+
+    .footer .skull {
+      font-size: 24px;
+      opacity: 0.08;
+      margin-top: 4px;
+      letter-spacing: 8px;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 480px) {
+      .container { padding: 16px 14px; }
+      .logo .main { font-size: 30px; }
+      .logo .arabic { font-size: 15px; }
+      .phone-group .country { width: 80px; font-size: 16px; padding: 12px 8px; }
+      .phone-group .number-input { font-size: 14px; padding: 12px 12px; }
+      .result .result-status .this-account { font-size: 18px; }
+      .result .result-status .status-big { font-size: 38px; }
+      .info-grid { font-size: 10px; gap: 2px 10px; }
+      .destroyed-footer { font-size: 16px; }
+      .result-buttons button { font-size: 12px; padding: 12px 12px; }
+    }
+
+    @media (max-width: 380px) {
+      .phone-group { flex-direction: column; gap: 8px; }
+      .phone-group .country { width: 100%; }
+      .result .result-status .status-big { font-size: 30px; }
+      .info-grid { grid-template-columns: 1fr; gap: 0; }
+      .info-grid .value { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── BACKGROUND ─── -->
+  <div class="bg-layer"></div>
+  <div class="glitch-scan"></div>
+
+  <!-- ─── CONTAINER ─── -->
+  <div class="container">
+
+    <!-- ─── LOGO ─── -->
+    <div class="logo">
+      <div class="main">MR DRACULA</div>
+      <span class="arabic">المستبد</span>
+      <div class="powered">POWERED BY DARKNESS</div>
+      <div class="evil-tech">EVIL TECH</div>
+    </div>
+
+    <!-- ─── TOP ROW ─── -->
+    <div class="top-row">
+      <span class="arabic-small">السيد أورا</span>
+      <span class="evil-tech-small">EVIL TECH</span>
+    </div>
+
+    <!-- ─── SPONSORED ─── -->
+    <div class="sponsored">
+      WhatsApp verification version<br />sponsored by <span>MR DRACULA</span>
+    </div>
+
+    <!-- ─── PHONE INPUT ─── -->
+    <div class="phone-group">
+      <input class="country" id="countryCode" type="text" value="+509" />
+      <input class="number-input" id="phoneInput" type="tel" placeholder="40 49 2149" />
+    </div>
+
+    <!-- ─── CONNECT BUTTON ─── -->
+    <button class="btn-connect" id="checkBtn">⟡ CONNECT TO DARK SYSTEM ⟡</button>
+
+    <!-- ─── STATUS ANIMATION ─── -->
+    <div class="status-anim" id="statusAnim">
+      <div class="scan-line"></div>
+      <div class="dots">● ● ●</div>
+      <div class="connecting-text">CONNECTING TO DARK'S SYSTEM...</div>
+    </div>
+
+    <!-- ─── RESULT ─── -->
+    <div class="result" id="result">
+
+      <div class="result-header">CHECKING STATUS...</div>
+
+      <div class="result-status">
+        <div class="this-account">THIS ACCOUNT IS</div>
+        <div class="status-big" id="statusBig">BANNED</div>
+      </div>
+
+      <div class="arabic-center">
+        <span class="lantern">🏮</span> أنا كابوسك <span class="lantern">🏮</span>
+      </div>
+
+      <div class="info-grid">
+        <span class="label">NUMBER:</span>
+        <span class="value white" id="displayNumber">+509 40 49 2149</span>
+
+        <span class="label">STATUS:</span>
+        <span class="value red" id="displayStatus">BANNED</span>
+
+        <span class="label">DETECTED BY:</span>
+        <span class="value red" id="displayDetected">MR DRACULA SYSTEM</span>
+
+        <span class="label">ID:</span>
+        <span class="value red" id="displayId">MD-4049-2149-DESTROYED</span>
+
+        <span class="label">TIME:</span>
+        <span class="value red" id="displayTime">21:56:33</span>
+
+        <span class="label">DATE:</span>
+        <span class="value red" id="displayDate">02/06/2025</span>
+      </div>
+
+      <div class="destroyed-footer">
+        <span class="highlight">DESTROYED BY MR DRACULA</span>
+      </div>
+
+      <div class="result-buttons">
+        <button id="okBtn">OK</button>
+        <button class="destroyed-btn" id="destroyedBtn">...DESTROYED</button>
+      </div>
+
+    </div>
+
+    <!-- ─── FOOTER ─── -->
+    <div class="footer">
+      <div class="hypnosis">H Y P N O S I S</div>
+      <div class="skull">💀 🕯️ 💀 🕯️ 💀</div>
+    </div>
+
+  </div>
+
+  <script>
+    const countryCode = document.getElementById('countryCode');
+    const phoneInput = document.getElementById('phoneInput');
+    const checkBtn = document.getElementById('checkBtn');
+    const statusAnim = document.getElementById('statusAnim');
+    const result = document.getElementById('result');
+    const statusBig = document.getElementById('statusBig');
+    const displayNumber = document.getElementById('displayNumber');
+    const displayStatus = document.getElementById('displayStatus');
+    const displayDetected = document.getElementById('displayDetected');
+    const displayId = document.getElementById('displayId');
+    const displayTime = document.getElementById('displayTime');
+    const displayDate = document.getElementById('displayDate');
+    const okBtn = document.getElementById('okBtn');
+    const destroyedBtn = document.getElementById('destroyedBtn');
+
+    // ─── Helpers ───
+    function getCurrentTime() {
+      return new Date().toTimeString().slice(0, 8);
+    }
+
+    function getCurrentDate() {
+      const d = new Date();
+      return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    }
+
+    function generateId(phone, status) {
+      const clean = phone.replace(/[^0-9]/g, '').slice(-8);
+      return `MD-${clean}-${status === 'banned' ? 'DESTROYED' : 'ACTIVE'}`;
+    }
+
+    function formatPhone(country, number) {
+      const clean = number.replace(/[^0-9]/g, '');
+      const formatted = clean.replace(/(\d{2})(\d{2})(\d{4})/, '$1 $2 $3');
+      return `${country} ${formatted}`;
+    }
+
+    // ─── Check ───
+    checkBtn.addEventListener('click', async () => {
+      const country = countryCode.value.trim() || '+509';
+      const number = phoneInput.value.trim();
+
+      if (!number) {
+        alert('Please enter a phone number.');
+        return;
+      }
+
+      const fullNumber = country + number.replace(/[^0-9]/g, '');
+
+      // Show animation
+      statusAnim.classList.add('active');
+      result.classList.remove('active', 'banned');
+      result.style.display = 'none';
+      checkBtn.disabled = true;
+      checkBtn.textContent = '⟡ CONNECTING... ⟡';
+
+      // Simulate delay
+      await new Promise(resolve => setTimeout(resolve, 2800));
+
+      // ─── SIMULATED CHECK (replace with real API call) ───
+      // For demo: 50% chance banned
+      const isBanned = Math.random() < 0.5;
+
+      statusAnim.classList.remove('active');
+      checkBtn.disabled = false;
+      checkBtn.textContent = '⟡ CONNECT TO DARK SYSTEM ⟡';
+
+      const formatted = formatPhone(country, number);
+      const time = getCurrentTime();
+      const date = getCurrentDate();
+      const statusText = isBanned ? 'BANNED' : 'ACTIVE';
+      const statusClass = isBanned ? 'banned-text' : 'active-text';
+
+      statusBig.className = `status-big ${statusClass}`;
+      statusBig.textContent = statusText;
+
+      displayNumber.textContent = formatted;
+      displayStatus.textContent = statusText;
+      displayStatus.className = `value ${isBanned ? 'red' : 'green'}`;
+      displayDetected.textContent = 'MR DRACULA SYSTEM';
+      displayId.textContent = generateId(fullNumber, isBanned ? 'banned' : 'active');
+      displayTime.textContent = time;
+      displayDate.textContent = date;
+
+      result.className = `result ${isBanned ? 'banned' : 'active'}`;
+      result.style.display = 'block';
+
+      // Update destroyed text
+      const destroyedEl = document.querySelector('.destroyed-footer .highlight');
+      if (isBanned) {
+        destroyedEl.textContent = 'DESTROYED BY MR DRACULA';
+      } else {
+        destroyedEl.textContent = '✦ ACCOUNT ACTIVE ✦';
+        destroyedEl.style.color = '#00cc44';
+      }
+    });
+
+    // ─── OK Button ───
+    okBtn.addEventListener('click', () => {
+      result.style.display = 'none';
+      result.className = 'result';
+      phoneInput.value = '';
+      phoneInput.focus();
+    });
+
+    // ─── DESTROYED Button ───
+    destroyedBtn.addEventListener('click', () => {
+      result.style.display = 'none';
+      result.className = 'result';
+      phoneInput.value = '';
+      phoneInput.focus();
+    });
+
+    // ─── Enter Key ───
+    phoneInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkBtn.click();
+    });
+
+    // ─── Auto-format country code ───
+    countryCode.addEventListener('input', function() {
+      if (!this.value.startsWith('+')) {
+        this.value = '+' + this.value.replace(/[^0-9]/g, '');
+      }
+    });
+  </script>
+
+</body>
+  </html>
