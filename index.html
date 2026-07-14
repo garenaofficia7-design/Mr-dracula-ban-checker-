@@ -11,7 +11,6 @@
 
     body {
       font-family: 'Cinzel', 'Playfair Display', serif;
-      background: #000000;
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -19,51 +18,39 @@
       padding: 16px;
       overflow-x: hidden;
       position: relative;
+      background: #000000;
     }
 
-    .bg-layer {
+    /* ─── FULL BACKGROUND IMAGE ─── */
+    body::before {
+      content: '';
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       z-index: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(ellipse at 50% 8%, rgba(50,0,0,0.3) 0%, transparent 40%),
-        radial-gradient(ellipse at 50% 85%, rgba(30,0,0,0.4) 0%, transparent 30%),
-        radial-gradient(circle at 10% 20%, rgba(100,0,0,0.05) 0%, transparent 20%),
-        radial-gradient(circle at 90% 20%, rgba(100,0,0,0.05) 0%, transparent 20%),
-        radial-gradient(ellipse at 30% 90%, rgba(20,0,0,0.3) 0%, transparent 40%),
-        radial-gradient(ellipse at 70% 90%, rgba(20,0,0,0.3) 0%, transparent 40%),
-        #000000;
+      background-image: url('bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      filter: brightness(0.85) contrast(1.1);
     }
 
-    .bg-layer::before {
-      content: '';
-      position: absolute;
+    /* ─── DARK OVERLAY FOR READABILITY ─── */
+    .overlay {
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background:
-        repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(60,0,0,0.03) 40px, rgba(60,0,0,0.03) 42px),
-        repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(60,0,0,0.03) 40px, rgba(60,0,0,0.03) 42px);
+      z-index: 1;
+      background: rgba(0,0,0,0.45);
       pointer-events: none;
     }
 
-    .bg-layer::after {
-      content: '👁️👁️';
-      position: absolute;
-      top: 6%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 60px;
-      opacity: 0.08;
-      filter: blur(2px);
-      letter-spacing: 40px;
-    }
-
+    /* ─── GLITCH SCAN ─── */
     .glitch-scan {
       position: fixed;
       top: 0;
@@ -76,8 +63,8 @@
         0deg,
         transparent 0px,
         transparent 3px,
-        rgba(100,0,0,0.02) 3px,
-        rgba(100,0,0,0.02) 4px
+        rgba(100,0,0,0.03) 3px,
+        rgba(100,0,0,0.03) 4px
       );
       animation: glitchScan 10s linear infinite;
     }
@@ -88,17 +75,18 @@
       100% { transform: translateY(100%); opacity: 0.2; }
     }
 
+    /* ─── CONTAINER ─── */
     .container {
       position: relative;
       z-index: 2;
       max-width: 480px;
       width: 100%;
-      background: rgba(8,8,8,0.95);
-      border: 2px solid rgba(139,0,0,0.6);
+      background: rgba(5,5,5,0.88);
+      backdrop-filter: blur(4px);
+      border: 2px solid rgba(139,0,0,0.5);
       border-radius: 30px;
       padding: 24px 20px 28px;
-      box-shadow: 0 0 60px rgba(139,0,0,0.15), inset 0 0 60px rgba(139,0,0,0.03);
-      backdrop-filter: blur(4px);
+      box-shadow: 0 0 80px rgba(139,0,0,0.15), inset 0 0 60px rgba(139,0,0,0.03);
     }
 
     .logo {
@@ -117,8 +105,8 @@
       text-shadow: 0 0 30px rgba(139,0,0,0.2);
       letter-spacing: 2px;
       line-height: 1.1;
-      position: relative;
       display: inline-block;
+      position: relative;
     }
 
     .logo .main::after {
@@ -333,7 +321,7 @@
       padding: 20px 16px;
       border-radius: 30px;
       border: 2px solid rgba(139,0,0,0.3);
-      background: #0a0000;
+      background: rgba(10,0,0,0.9);
       position: relative;
       overflow: hidden;
     }
@@ -519,7 +507,6 @@
       letter-spacing: 8px;
     }
 
-    /* ─── RESPONSIVE ─── */
     @media (max-width: 480px) {
       .container { padding: 16px 14px; }
       .logo .main { font-size: 30px; }
@@ -544,14 +531,11 @@
 </head>
 <body>
 
-  <!-- ─── BACKGROUND ─── -->
-  <div class="bg-layer"></div>
+  <div class="overlay"></div>
   <div class="glitch-scan"></div>
 
-  <!-- ─── CONTAINER ─── -->
   <div class="container">
 
-    <!-- ─── LOGO ─── -->
     <div class="logo">
       <div class="main">MR DRACULA</div>
       <span class="arabic">المستبد</span>
@@ -559,79 +543,60 @@
       <div class="evil-tech">EVIL TECH</div>
     </div>
 
-    <!-- ─── TOP ROW ─── -->
     <div class="top-row">
       <span class="arabic-small">السيد أورا</span>
       <span class="evil-tech-small">EVIL TECH</span>
     </div>
 
-    <!-- ─── SPONSORED ─── -->
     <div class="sponsored">
       WhatsApp verification version<br />sponsored by <span>MR DRACULA</span>
     </div>
 
-    <!-- ─── PHONE INPUT ─── -->
     <div class="phone-group">
       <input class="country" id="countryCode" type="text" value="+509" />
       <input class="number-input" id="phoneInput" type="tel" placeholder="40 49 2149" />
     </div>
 
-    <!-- ─── CONNECT BUTTON ─── -->
     <button class="btn-connect" id="checkBtn">⟡ CONNECT TO DARK SYSTEM ⟡</button>
 
-    <!-- ─── STATUS ANIMATION ─── -->
     <div class="status-anim" id="statusAnim">
       <div class="scan-line"></div>
       <div class="dots">● ● ●</div>
       <div class="connecting-text">CONNECTING TO DARK'S SYSTEM...</div>
     </div>
 
-    <!-- ─── RESULT ─── -->
     <div class="result" id="result">
-
       <div class="result-header">CHECKING STATUS...</div>
-
       <div class="result-status">
         <div class="this-account">THIS ACCOUNT IS</div>
         <div class="status-big" id="statusBig">BANNED</div>
       </div>
-
       <div class="arabic-center">
         <span class="lantern">🏮</span> أنا كابوسك <span class="lantern">🏮</span>
       </div>
-
       <div class="info-grid">
         <span class="label">NUMBER:</span>
         <span class="value white" id="displayNumber">+509 40 49 2149</span>
-
         <span class="label">STATUS:</span>
         <span class="value red" id="displayStatus">BANNED</span>
-
         <span class="label">DETECTED BY:</span>
         <span class="value red" id="displayDetected">MR DRACULA SYSTEM</span>
-
         <span class="label">ID:</span>
         <span class="value red" id="displayId">MD-4049-2149-DESTROYED</span>
-
         <span class="label">TIME:</span>
         <span class="value red" id="displayTime">21:56:33</span>
-
         <span class="label">DATE:</span>
         <span class="value red" id="displayDate">02/06/2025</span>
       </div>
-
       <div class="destroyed-footer">
         <span class="highlight">DESTROYED BY MR DRACULA</span>
       </div>
-
       <div class="result-buttons">
         <button id="okBtn">OK</button>
         <button class="destroyed-btn" id="destroyedBtn">...DESTROYED</button>
       </div>
-
     </div>
 
-    <!-- ─── FOOTER ─── -->
     <div class="footer">
       <div class="hypnosis">H Y P N O S I S</div>
       <div class="skull">💀 🕯️ 💀 🕯️ 💀</div>
@@ -657,7 +622,7 @@
     const destroyedBtn = document.getElementById('destroyedBtn');
 
     // ─── CONFIGURATION ───
-    // CHANGE THIS TO YOUR RENDER BACKEND URL
+    // CHANGE THIS TO YOUR BACKEND URL AFTER DEPLOYING
     const BACKEND_URL = 'https://your-backend.onrender.com';
 
     // ─── Helpers ───
@@ -742,7 +707,6 @@
 
       const fullNumber = country + number.replace(/[^0-9]/g, '');
 
-      // Show animation
       statusAnim.classList.add('active');
       result.style.display = 'none';
       result.className = 'result';
@@ -750,7 +714,6 @@
       checkBtn.textContent = '⟡ CONNECTING... ⟡';
 
       try {
-        // ─── REAL BACKEND CALL ───
         const response = await fetch(`${BACKEND_URL}/check?phone=${encodeURIComponent(fullNumber)}`);
         const data = await response.json();
 
@@ -801,4 +764,4 @@
   </script>
 
 </body>
-          </html>
+  </html>
